@@ -270,12 +270,12 @@ func (c *Client) post(ctx context.Context, path string, body any) (int, []byte, 
 	}
 	defer resp.Body.Close()
 
-	body, err := io.ReadAll(resp.Body)
+	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return 0, nil, fmt.Errorf("radist: failed to read response body: %w", err)
 	}
 
-	return resp.StatusCode, body, nil
+	return resp.StatusCode, respBody, nil
 }
 
 func (c *Client) resolveProjectID(override string) (string, error) {
