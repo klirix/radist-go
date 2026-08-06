@@ -34,7 +34,7 @@ type requestCapture struct {
 
 func (rc *requestCapture) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	rc.method = r.Method
-	rc.path = r.URL.Path
+	rc.path = r.URL.EscapedPath()
 	rc.headers = r.Header.Clone()
 	if r.Body != nil {
 		rc.body, _ = io.ReadAll(r.Body)
