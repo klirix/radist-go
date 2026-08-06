@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
     paths: [go.mod]
+  workflow_dispatch: {}
 
 permissions:
   contents: write
