@@ -241,6 +241,42 @@ func TestCreateP2PConnection_MalformedResponse(t *testing.T) {
 	}
 }
 
+func TestCreateP2PConnection_InvalidAccessControl(t *testing.T) {
+	handler := jsonHandler(t, http.StatusOK, map[string]any{
+		"callId":        "call_123",
+		"callTokens":    []string{"tok_a", "tok_b"},
+		"accessControl": "PUBLIC",
+	})
+	client, _ := newTestClient(t, handler)
+
+	_, err := client.CreateP2PConnection(context.Background(), nil)
+	if err == nil {
+		t.Fatal("expected error for invalid accessControl, got nil")
+	}
+	var apiErr *APIError
+	if !errors.As(err, &apiErr) {
+		t.Fatalf("error type = %T, want *APIError", err)
+	}
+}
+
+func TestCreateP2PConnection_EmptyAccessControl(t *testing.T) {
+	handler := jsonHandler(t, http.StatusOK, map[string]any{
+		"callId":        "call_123",
+		"callTokens":    []string{"tok_a", "tok_b"},
+		"accessControl": "",
+	})
+	client, _ := newTestClient(t, handler)
+
+	_, err := client.CreateP2PConnection(context.Background(), nil)
+	if err == nil {
+		t.Fatal("expected error for empty accessControl, got nil")
+	}
+	var apiErr *APIError
+	if !errors.As(err, &apiErr) {
+		t.Fatalf("error type = %T, want *APIError", err)
+	}
+}
+
 func TestCreateP2PConnection_MissingProjectID(t *testing.T) {
 	c, err := NewClient("rad_sk_test")
 	if err != nil {

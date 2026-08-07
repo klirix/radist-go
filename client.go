@@ -164,7 +164,7 @@ func (c *Client) CreateP2PConnection(ctx context.Context, opts *CreateP2PConnect
 	}
 	_ = json.Unmarshal(respBody, &data)
 
-	if status < 200 || status >= 300 || data.CallID == "" || len(data.CallTokens) < 2 {
+	if status < 200 || status >= 300 || data.CallID == "" || len(data.CallTokens) < 2 || (data.AccessControl != "public" && data.AccessControl != "private") {
 		return nil, newAPIError(status, data.Error)
 	}
 
@@ -242,6 +242,10 @@ func (c *Client) MintConnectionToken(ctx context.Context, opts MintConnectionTok
 }
 
 func (c *Client) post(ctx context.Context, path string, body any) (int, []byte, error) {
+	return c.request(ctx, http.MethodPost, path, body)
+}
+
+func (c *Client) request(ctx context.Context, method, path string, body any) (int, []byte, error) {
 	var bodyReader io.Reader
 	extraHeaders := map[string]string{}
 	if body != nil {
@@ -253,7 +257,7 @@ func (c *Client) post(ctx context.Context, path string, body any) (int, []byte, 
 		extraHeaders["Content-Type"] = "application/json"
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.apiBaseURL+path, bodyReader)
+	req, err := http.NewRequestWithContext(ctx, method, c.apiBaseURL+path, bodyReader)
 	if err != nil {
 		return 0, nil, fmt.Errorf("radist: failed to build request: %w", err)
 	}
